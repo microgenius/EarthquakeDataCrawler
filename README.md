@@ -1,6 +1,7 @@
 # EarthquakeDataCrawler
 
 A Basic Web Crawler Project For Fetch Earthquake Data
+(Sample Code based on Turkey)
 
 * App Language is Kotlin
 * Spring Boot Configuration
