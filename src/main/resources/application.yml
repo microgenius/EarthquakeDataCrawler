@@ -1,20 +1,9 @@
 ### Spring ###
 spring:
-  ### Datasource ###
-  datasource:
-    url: jdbc:postgresql://localhost:5432/CrawlerDB
-    username: crawler_user
-    password: password
-    driver-class-name: org.postgresql.Driver
-
-  ### JPA ###
-  jpa:
-    show-sql: true
-    hibernate:
-      ddl-auto: update
-      naming_strategy: org.hibernate.cfg.DefaultNamingStrategy
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQL95Dialect
-        temp:
-          use_jdbc_metadata_defaults: false
+  ## Spring Data ##
+  data:
+    ## Mongo DB ##
+    mongodb:
+      host: localhost
+      port: 27017
+      database: CrawlerDB

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://dozer.sourceforge.net"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://dozer.sourceforge.net
+      http://dozer.sourceforge.net/schema/beanmapping.xsd">
+    <configuration>
+        <custom-converters>
+            <converter type="com.sample.crawler.earthquake.mappers.TimeIdentifierMapper">
+                <class-a>java.sql.Date</class-a>
+                <class-b>java.lang.Long</class-b>
+            </converter>
+        </custom-converters>
+    </configuration>
+    <mapping>
+        <class-a>com.sample.crawler.earthquake.dto.EarthquakeInfo</class-a>
+        <class-b>com.sample.crawler.earthquake.data.entity.EarthquakeInfoDocument</class-b>
+        <field>
+            <a>intensityOfEarthquake</a>
+            <b>intensity</b>
+        </field>
+    </mapping>
+</mappings>
