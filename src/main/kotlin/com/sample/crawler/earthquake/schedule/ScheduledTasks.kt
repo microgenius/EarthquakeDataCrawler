@@ -31,7 +31,7 @@ class ScheduledTasks(private val webCrawlerContext: WebCrawlerContext,
         this.webCrawlerContext.addCrawler(kandilliWebCrawler)
     }
 
-    @Scheduled(cron = "0 34/30 * * * ?")
+    @Scheduled(cron = "0 0/30 * * * ?")
     fun scheduleDataCenterJob() {
         this.webCrawlerContext.startCrawling()
     }

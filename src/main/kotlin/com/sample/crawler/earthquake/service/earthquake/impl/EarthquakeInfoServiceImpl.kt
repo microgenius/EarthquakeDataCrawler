@@ -22,9 +22,7 @@ class EarthquakeInfoServiceImpl(private val earthquakeInfoRepository: Earthquake
     @Transactional
     override fun insert(bulkData: List<EarthquakeInfo>) {
         val convertedDataList = this.convertListToDocument(bulkData)
-        for (earthquakeInfoDocument in convertedDataList) {
-            this.earthquakeInfoRepository.insert(earthquakeInfoDocument)
-        }
+        this.earthquakeInfoRepository.insert(convertedDataList)
     }
 
     private fun convertListToDocument(bulkData: List<EarthquakeInfo>) : List<EarthquakeInfoDocument> {
@@ -39,8 +37,7 @@ class EarthquakeInfoServiceImpl(private val earthquakeInfoRepository: Earthquake
 
     @Transactional(readOnly = true)
     override fun getLastInsertedData(): EarthquakeInfo? {
-        val lastInsertedRow = earthquakeInfoRepository.findAll(IdentityDocument.orderByDesc())
-                .firstOrNull()
+        val lastInsertedRow = earthquakeInfoRepository.findTop1ByOrderByEarthquakeTimeDesc()
         if (lastInsertedRow != null) {
             return this.mapper.map(lastInsertedRow, EarthquakeInfo::class.java)
         }
