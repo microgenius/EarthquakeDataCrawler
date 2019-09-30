@@ -2,30 +2,48 @@ package com.sample.crawler.earthquake.service.earthquake.impl
 
 import com.sample.crawler.earthquake.base.LoggableClass
 import com.sample.crawler.earthquake.data.entity.EarthquakeInfoDocument
-import com.sample.crawler.earthquake.data.entity.base.IdentityDocument
 import com.sample.crawler.earthquake.data.repository.EarthquakeInfoRepository
 import com.sample.crawler.earthquake.dto.EarthquakeInfo
 import com.sample.crawler.earthquake.service.earthquake.type.IEarthquakeInfoService
 import org.dozer.DozerBeanMapper
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.*
 
 @Service
 class EarthquakeInfoServiceImpl(private val earthquakeInfoRepository: EarthquakeInfoRepository,
-                                private val mapper: DozerBeanMapper) : LoggableClass(), IEarthquakeInfoService {
+                                private val mapper: DozerBeanMapper) :
+        LoggableClass(), IEarthquakeInfoService {
+
+    @Transactional(readOnly = true)
+    override fun getLastDataForProvider(providerName: String): EarthquakeInfo? {
+        val latestDataFromProvider = earthquakeInfoRepository.findTop1ByDataProviderOrderByEarthquakeTimeDesc(providerName)
+        if (latestDataFromProvider != null) {
+            return this.mapper.map(latestDataFromProvider, EarthquakeInfo::class.java)
+        }
+
+        return null
+    }
+
     @Transactional
     override fun update(bulkData: List<EarthquakeInfo>) {
-        val convertedDataList = this.convertListToDocument(bulkData)
-        this.earthquakeInfoRepository.saveAll(convertedDataList)
+        if (bulkData.isNotEmpty()) {
+            val convertedDataList = this.convertListToDocument(bulkData)
+            this.earthquakeInfoRepository.saveAll(convertedDataList)
+            this.logger.info("update, {} Document(s) has updated inside [EarthquakeInfo]", bulkData.size)
+        }
     }
 
     @Transactional
     override fun insert(bulkData: List<EarthquakeInfo>) {
-        val convertedDataList = this.convertListToDocument(bulkData)
-        this.earthquakeInfoRepository.insert(convertedDataList)
+        if (bulkData.isNotEmpty()) {
+            val convertedDataList = this.convertListToDocument(bulkData)
+            this.earthquakeInfoRepository.insert(convertedDataList)
+            this.logger.info("insert, {} Document(s) has inserted to [EarthquakeInfo]", bulkData.size)
+        }
     }
 
-    private fun convertListToDocument(bulkData: List<EarthquakeInfo>) : List<EarthquakeInfoDocument> {
+    private fun convertListToDocument(bulkData: List<EarthquakeInfo>): List<EarthquakeInfoDocument> {
         val convertedDataList = mutableListOf<EarthquakeInfoDocument>()
         for (data in bulkData) {
             val document = mapper.map(data, EarthquakeInfoDocument::class.java)
@@ -36,18 +54,8 @@ class EarthquakeInfoServiceImpl(private val earthquakeInfoRepository: Earthquake
     }
 
     @Transactional(readOnly = true)
-    override fun getLastInsertedData(): EarthquakeInfo? {
-        val lastInsertedRow = earthquakeInfoRepository.findTop1ByOrderByEarthquakeTimeDesc()
-        if (lastInsertedRow != null) {
-            return this.mapper.map(lastInsertedRow, EarthquakeInfo::class.java)
-        }
-
-        return null
-    }
-
-    @Transactional(readOnly = true)
-    override fun getLastUpdatedData(): EarthquakeInfo? {
-        val lastUpdatedRow = earthquakeInfoRepository.findAllByUpdatedTimeIsNotNullOrderByUpdatedTimeDesc()
+    override fun getLastUpdatedData(providerName: String): EarthquakeInfo? {
+        val lastUpdatedRow = earthquakeInfoRepository.findAllByDataProviderAndUpdatedTimeIsNotNullOrderByUpdatedTimeDesc(providerName)
                 .firstOrNull()
         if (lastUpdatedRow != null) {
             return this.mapper.map(lastUpdatedRow, EarthquakeInfo::class.java)
@@ -57,23 +65,22 @@ class EarthquakeInfoServiceImpl(private val earthquakeInfoRepository: Earthquake
     }
 
     @Transactional
-    override fun upsertInfoToDB(info: EarthquakeInfo): Boolean {
-        val documentId = info.earthquakeTime?.time ?: -1
-        try {
-            val document = mapper.map(info, EarthquakeInfoDocument::class.java)
-            document.id = documentId
+    override fun upsertDocuments(providerName: String, convertedData: List<EarthquakeInfo>) {
+        val lastCreatedTime = this.getLastDataForProvider(providerName)
+                ?.earthquakeTime ?: Date(-1)
 
-            val isDocumentExists = earthquakeInfoRepository.existsById(documentId)
-            if (isDocumentExists) {
-                earthquakeInfoRepository.save(document)
-            } else {
-                earthquakeInfoRepository.insert(document)
-            }
+        val lastUpdatedTime = this.getLastUpdatedData(providerName)
+                ?.earthquakeTime ?: Date(-1)
 
-            return true
-        } catch (e : Exception) {
-            this.logger.error("upsertInfoToDB, document could not be saved to DB, id: {}, Detail: ", documentId, e)
-            return false
-        }
+        val nonExistsDocuments = convertedData
+                .filter { it.earthquakeTime!!.after(lastCreatedTime) }
+
+        val existsDocuments = convertedData
+                .filter { it.earthquakeTime!!.after(lastUpdatedTime) }
+                .filter { Objects.nonNull(it.updatedTime) }
+                .filter { self -> nonExistsDocuments.none { other -> self.earthquakeTime!!.equals(other.earthquakeTime) } }
+
+        this.insert(nonExistsDocuments)
+        this.update(existsDocuments)
     }
 }

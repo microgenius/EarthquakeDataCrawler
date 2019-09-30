@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface EarthquakeInfoRepository : MongoRepository<EarthquakeInfoDocument, Long> {
-    fun findAllByUpdatedTimeIsNotNullOrderByUpdatedTimeDesc(): List<EarthquakeInfoDocument>
+    fun findAllByDataProviderAndUpdatedTimeIsNotNullOrderByUpdatedTimeDesc(dataProvider: String): List<EarthquakeInfoDocument>
 
-    fun findTop1ByOrderByEarthquakeTimeDesc() : EarthquakeInfoDocument?
+    fun findTop1ByDataProviderOrderByEarthquakeTimeDesc(dataProvider: String): EarthquakeInfoDocument?
 }

@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 import java.net.URL
-import java.util.*
 
 @Suppress("PrivatePropertyName")
 @Component("kandilliCrawler")
@@ -30,21 +29,6 @@ class KandilliWebCrawlerImpl : IWebCrawler {
     override fun afterVisit(visitedPage: Document) {
         val rawData = visitedPage.select(DATA_SELECT_QUERY)?.text()
         val parsedData = earthquakeDataParser.parseData(rawData)
-
-        val lastCreatedTime = earthquakeInfoService.getLastInsertedData()
-                ?.earthquakeTime ?: Date(-1)
-
-        val lastUpdatedTime = earthquakeInfoService.getLastUpdatedData()
-                ?.earthquakeTime ?: Date(-1)
-
-        val nonExistsDocuments = parsedData
-                .filter { it.earthquakeTime!!.after(lastCreatedTime) }
-        val existsDocuments = parsedData
-                .filter { it.earthquakeTime!!.after(lastUpdatedTime) }
-                .filter { Objects.nonNull(it.updatedTime) }
-                .filter { self -> nonExistsDocuments.none { other -> self.earthquakeTime!!.equals(other.earthquakeTime) } }
-
-        this.earthquakeInfoService.insert(nonExistsDocuments)
-        this.earthquakeInfoService.update(existsDocuments)
+        this.earthquakeInfoService.upsertDocuments(earthquakeDataParser.PROVIDER_NAME, parsedData)
     }
 }

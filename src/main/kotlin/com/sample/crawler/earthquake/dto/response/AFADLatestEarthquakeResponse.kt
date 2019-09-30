@@ -1,0 +1,30 @@
+import com.google.gson.annotations.SerializedName
+
+data class AFADLatestEarthquakeResponse (
+		@SerializedName("eventId") val eventId : Int,
+		@SerializedName("time") val time : String,
+		@SerializedName("agency") val agency : String,
+		@SerializedName("lat") val lat : Double,
+		@SerializedName("lon") val lon : Double,
+		@SerializedName("depth") val depth : Double,
+		@SerializedName("rms") val rms : Double,
+		@SerializedName("type") val type : String,
+		@SerializedName("m") val m : Double,
+		@SerializedName("place") val place : String,
+		@SerializedName("country") val country : String,
+		@SerializedName("city") val city : String,
+		@SerializedName("district") val district : String,
+		@SerializedName("town") val town : String?,
+		@SerializedName("other") val other : String?,
+		@SerializedName("strike1") val strike1 : String,
+		@SerializedName("dip1") val dip1 : String,
+		@SerializedName("rake1") val rake1 : String,
+		@SerializedName("strike2") val strike2 : String,
+		@SerializedName("dip2") val dip2 : String,
+		@SerializedName("rake2") val rake2 : String,
+		@SerializedName("ftype") val ftype : String,
+		@SerializedName("pic") val pic : String,
+		@SerializedName("file") val file : String,
+		@SerializedName("focalId") val focalId : String,
+		@SerializedName("time2") val time2 : Int
+)

@@ -1,12 +1,11 @@
 package com.sample.crawler.earthquake.base
 
-import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeFormatter.ofPattern
-
 
 class Constants {
     companion object {
         @JvmStatic
-        val DEF_DATE_FORMAT = "yyyy.MM.dd' 'HH:mm:ss"
+        val YEAR_FIRST_DATE_FORMAT = "yyyy.MM.dd' 'HH:mm:ss"
+        @JvmStatic
+        val DAY_FIRST_DATE_FORMAT = "dd.MM.yyyy' 'HH:mm:ss"
     }
 }

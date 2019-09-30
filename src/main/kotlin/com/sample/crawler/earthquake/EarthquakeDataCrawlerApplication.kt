@@ -4,7 +4,6 @@ import org.dozer.DozerBeanMapper
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.ComponentScan
 import org.springframework.core.io.ClassPathResource
 import org.springframework.scheduling.annotation.EnableScheduling
 

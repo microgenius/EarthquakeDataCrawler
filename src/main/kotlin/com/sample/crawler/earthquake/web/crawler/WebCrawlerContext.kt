@@ -19,7 +19,7 @@ import java.util.stream.Collectors
 @Component
 @Scope(value = "singleton", proxyMode = ScopedProxyMode.TARGET_CLASS)
 class WebCrawlerContext {
-    private val DEFAULT_TIMEOUT = 15 * 100
+    private val DEFAULT_TIMEOUT = 15 * 1000
 
     private val crawlerList: MutableList<IWebCrawler>
     private val sourceUrlList: MutableList<URL>

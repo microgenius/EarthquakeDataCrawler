@@ -1,15 +1,13 @@
 package com.sample.crawler.earthquake.mappers
 
+import com.sample.crawler.earthquake.base.CommonUtils
 import org.dozer.CustomConverter
 import java.sql.Date
-import java.sql.Timestamp
-import java.time.LocalDateTime
-import java.time.ZoneId
 
-class TimeIdentifierMapper : CustomConverter {
+class StringDateConverter : CustomConverter {
     override fun convert(destination: Any?, source: Any?, destinationClass: Class<*>?, sourceClass: Class<*>?): Any? {
-        if (source is Date && destination is Long) {
-            return source.time
+        if (source is String && destination is Date) {
+            return CommonUtils.safeConvertDatetime(source)
         }
 
         return null
