@@ -3,12 +3,14 @@ package com.sample.crawler.earthquake.web.api.dataprovider
 import com.sample.crawler.earthquake.web.api.dataprovider.type.IDataProvider
 import org.springframework.context.annotation.Scope
 import org.springframework.context.annotation.ScopedProxyMode
+import org.springframework.scheduling.TaskScheduler
 import org.springframework.stereotype.Component
+import java.util.*
 
 @Component
 @Scope(value = "singleton", proxyMode = ScopedProxyMode.TARGET_CLASS)
-class DataProviderContext {
-    private val dataProviderList : MutableList<IDataProvider>
+class DataProviderContext(private val taskScheduler: TaskScheduler) {
+    private val dataProviderList: MutableList<IDataProvider>
 
     init {
         this.dataProviderList = ArrayList()
@@ -19,24 +21,29 @@ class DataProviderContext {
     fun startDataFetching() {
         this.dataProviderList.parallelStream()
                 .forEach {
-                    this.scheduleDataProviderTask(0, 0, it)
+                    val now = Date()
+                    taskScheduler.schedule({
+                        this.scheduleDataProviderTask(0, it)
+                    }, now)
                 }
     }
 
-    private fun scheduleDataProviderTask(waitTime: Long, executedCount: Int, dataProvider: IDataProvider) {
+    private fun scheduleDataProviderTask(executedCount: Int, dataProvider: IDataProvider) {
         val toleranceParameters = dataProvider.providerToleranceParameters()
         if (executedCount >= toleranceParameters.reTryCount)
             return
-
-        // TODO ST: Change with proper tolerance process
-        Thread.sleep(waitTime)
 
         dataProvider.initializeCallParameters()
         val callSuccessful = dataProvider.makeCall()
 
         if (!callSuccessful) {
             val incrementedTryCount = executedCount + 1
-            this.scheduleDataProviderTask(toleranceParameters.waitUntilReTry, incrementedTryCount, dataProvider)
+            val eventTime = Date(System.currentTimeMillis() + toleranceParameters.waitUntilReTry)
+
+            // Schedule Task to eventTime
+            taskScheduler.schedule({
+                this.scheduleDataProviderTask(incrementedTryCount, dataProvider)
+            }, eventTime)
         }
     }
 }
