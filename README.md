@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/microgenius/EarthquakeDataCrawler.svg?branch=master)](https://travis-ci.org/microgenius/EarthquakeDataCrawler)
+
 # EarthquakeDataCrawler
 
 A Basic Web Crawler Project For Fetch Earthquake Data
