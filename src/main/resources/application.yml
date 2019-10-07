@@ -4,6 +4,5 @@ spring:
   data:
     ## Mongo DB ##
     mongodb:
-      host: localhost
-      port: 27017
+      uri: ${DB_URL:not set}
       database: CrawlerDB
