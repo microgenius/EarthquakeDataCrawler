@@ -1,0 +1,15 @@
+sudo: required
+dist: trusty
+
+language: java
+jdk:
+  - oraclejdk8
+
+deploy:
+  provider: heroku
+  app: earhquake-data-crawler
+  api_key: $HEROKU_API_KEY
+  on:
+    repo: microgenius/EarthquakeDataCrawler
+    branch: master
+    tags: true
