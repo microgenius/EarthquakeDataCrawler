@@ -55,7 +55,7 @@ class WebCrawlerContext {
                 }
     }
 
-    private fun fetchDataFromUrl(sourceUrl: URL?): Optional<Document> {
+    private fun fetchDataFromUrl(sourceUrl: URL): Optional<Document> {
         return try {
             Optional.ofNullable(Jsoup.parse(sourceUrl, DEFAULT_TIMEOUT))
         } catch (e: IOException) {
